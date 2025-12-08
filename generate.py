@@ -31,6 +31,9 @@ if config.SHOW_LOCAL:
         ax.plot(x, y, color="black", linewidth=1)
 
     ax.set_aspect("equal")
+    ax.set_xlim(-2000, 2000)
+    ax.set_ylim(-2000, 2000)
+
     plt.show()
     plt.pause(0.1)
 
@@ -47,5 +50,5 @@ if config.SHOW_LOCAL:
             ax.scatter(x, y, color="red", s=10)
 
     plt.draw()
-    plt.pause(15)         # обновление окна
+    plt.pause(1000)         # обновление окна
 

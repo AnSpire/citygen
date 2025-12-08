@@ -36,7 +36,7 @@ def generate_nodes(grid, base=300.0, spread=157, min_d=200, max_d=500):
 
     nodes = []
 
-    for i in range(grid+1):
+    for i in range(grid-1):
         row = []
         for j in range(grid+1):
 

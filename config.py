@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class CityConfig:
-    GRID: int = 6
+    GRID: int = 4
     CELL: float = 300
     OFFSET: float = 25
     MIN_D: float = 200
@@ -15,4 +15,4 @@ class CityConfig:
 
     HOUSE_INSIDE_MIN: tuple = (5,9)
 
-    SHOW_LOCAL: bool = False
+    SHOW_LOCAL: bool = True
