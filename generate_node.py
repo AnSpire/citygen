@@ -16,7 +16,7 @@ def random_steps(grid, base, spread):
     return coords
 
 
-def generate_main_street(grid, base=400.0, spread=107) -> List[Tuple[float, float]]:
+def generate_main_street(grid, base=300.0, spread=107) -> List[Tuple[float, float]]:
     """
     Генерирует главный ряд узлов (горизонтальная магистраль).
     grid — количество точек (например, 4)
@@ -61,6 +61,50 @@ def generate_blocks_from_main_down(main_row, rows, min_d=200, max_d=300) -> List
             # шаг вниз
             dy = random.uniform(min_d, max_d)
             y = py - dy  # кварталы идут "вниз"
+
+            # небольшой шум
+            x = px + random.uniform(-config.OFFSET, config.OFFSET)
+            y = y + random.uniform(-config.OFFSET, config.OFFSET)
+
+            # корректируем горизонтальное расстояние между соседями
+            if j > 0:
+                prev_x, prev_y = new_row[j - 1]
+                dx = x - prev_x
+
+                if dx < min_d:
+                    x = prev_x + min_d
+                if dx > max_d:
+                    x = prev_x + max_d
+
+            new_row.append((x, y))
+
+        nodes.append(new_row)
+
+    return nodes
+
+
+
+def generate_blocks_from_main_up(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
+    """
+    main_row — список точек магистрали [(x,y), ..., (x,y)]
+    rows — сколько рядов кварталов сгенерировать ниже магистрали
+    """
+
+    grid = len(main_row)
+    nodes = [main_row]   # первый ряд уже задан
+
+    for i in range(1, rows + 1):
+        prev_row = nodes[i - 1]
+        new_row = []
+
+        for j in range(grid):
+
+            # базовая точка — проекция вниз от prev_row[j]
+            px, py = prev_row[j]
+
+            # шаг вниз
+            dy = random.uniform(min_d, max_d)
+            y = py + dy  # кварталы идут "вниз"
 
             # небольшой шум
             x = px + random.uniform(-config.OFFSET, config.OFFSET)

@@ -10,7 +10,7 @@ from config import CityConfig
 config = CityConfig()
 
 
-def generate_houses(nodes, cell_size, roads, ax):
+def generate_houses(nodes, cell_size, roads, ax=None):
 
     houses = []
 
@@ -98,10 +98,11 @@ def generate_houses(nodes, cell_size, roads, ax):
 
                     houses.append(house)
                     if config.SHOW_LOCAL:
-                        x, y = house.exterior.xy
-                        ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
-                        ax.figure.canvas.draw_idle()
-                        plt.pause(0.001)
+                        if config.ANIMATE_HOUSES:
+                            x, y = house.exterior.xy
+                            ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
+                            ax.figure.canvas.draw_idle()
+                            plt.pause(0.001)
                     total += house_len + step  # следующий дом = отступ от предыдущего
 
             #───────────────────────────────────────────────
@@ -127,12 +128,11 @@ def generate_houses(nodes, cell_size, roads, ax):
                     if house.within(cell) \
                     and all(house.distance(h)>SQ_SPACING for h in houses):
                         houses.append(house)
-                        if config.SHOW_LOCAL:
+                        if config.SHOW_LOCAL and config.ANIMATE_HOUSES:
                             x, y = house.exterior.xy
                             ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
                             ax.figure.canvas.draw_idle()
                             plt.pause(0.001)
                         cell_houses.append(house)
                         break
-    print(len(houses))
     return houses

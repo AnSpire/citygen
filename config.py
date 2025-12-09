@@ -16,3 +16,4 @@ class CityConfig:
     HOUSE_INSIDE_MIN: tuple = (5,9)
 
     SHOW_LOCAL: bool = True
+    ANIMATE_HOUSES: bool = True

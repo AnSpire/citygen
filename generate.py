@@ -15,16 +15,20 @@ from config import CityConfig
 """
 config = CityConfig()
 
-main_street_nodes = generate_main_street(8)
-block = generate_blocks_from_main_down(main_row=main_street_nodes[2:-2], rows=2)
-# block2 = generate_blocks_from_main(main_row=block[-1], rows = 2)
-# block += block2
-nodes = block.copy()
+
+
+main_street_nodes = generate_main_street(10)
+block = generate_blocks_from_main_down(main_row=main_street_nodes[5:-1], rows=2)
+nodes = block.copy() 
 nodes.append(main_street_nodes)
 roads: List[LineString] = generate_roads_from_grid(block)
 main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
 all_roads = roads + main_street_road
 CITY_BORDER = get_city_border(block)
+if not config.ANIMATE_HOUSES:
+    houses = generate_houses(block, config.CELL, all_roads)
+
+
 
 
 # === ЭТАП 1 — рисуем и показываем только дороги ===
@@ -43,8 +47,8 @@ if config.SHOW_LOCAL:
         x, y = r.xy
         ax.plot(x, y, color="black", linewidth=1)
 
-
-    houses = generate_houses(block, config.CELL, all_roads, ax)
+    if config.ANIMATE_HOUSES:
+        houses = generate_houses(block, config.CELL, all_roads, ax)
 
     plt.show()
     plt.pause(0.1)
