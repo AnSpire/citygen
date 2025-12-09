@@ -31,7 +31,6 @@ if not config.ANIMATE_HOUSES:
 
 
 
-# === ЭТАП 1 — рисуем и показываем только дороги ===
 if config.SHOW_LOCAL:
     plt.ion()
     fig, ax = plt.subplots(figsize=(10,10))
@@ -49,17 +48,12 @@ if config.SHOW_LOCAL:
 
     if config.ANIMATE_HOUSES:
         houses = generate_houses(block, config.CELL, all_roads, ax)
-
+    else:
+        for house in houses:
+            x, y = house.exterior.xy
+            ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
     plt.show()
     plt.pause(0.1)
-
-    # === ЭТАП 2 — дорисовываем дома ===
-
-    # for house in houses:
-    #     x, y = house.exterior.xy
-    #     ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
-
-    # узлы поверх
 
     plt.draw()
     plt.pause(1000)         # обновление окна
