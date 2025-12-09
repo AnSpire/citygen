@@ -6,7 +6,7 @@ import math
 import random
 from generate_node import  *
 from city_border import get_city_border
-from roads import generate_roads
+from roads import generate_roads_from_grid, generate_road_from_points
 from branches import generate_branches
 from houses import generate_houses
 from config import CityConfig
@@ -15,12 +15,15 @@ from config import CityConfig
 """
 config = CityConfig()
 
-main_street = generate_main_street(6)
-block = generate_blocks_from_main(main_row=main_street[1:-1], rows=2)
+main_street_nodes = generate_main_street(8)
+block = generate_blocks_from_main_down(main_row=main_street_nodes[2:-2], rows=2)
+# block2 = generate_blocks_from_main(main_row=block[-1], rows = 2)
+# block += block2
 nodes = block.copy()
-nodes.append(main_street)
-roads = generate_roads(block)
-all_roads = roads
+nodes.append(main_street_nodes)
+roads: List[LineString] = generate_roads_from_grid(block)
+main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
+all_roads = roads + main_street_road
 CITY_BORDER = get_city_border(block)
 
 
@@ -29,13 +32,12 @@ if config.SHOW_LOCAL:
     plt.ion()
     fig, ax = plt.subplots(figsize=(10,10))
     ax.set_aspect("equal")
-    ax.set_xlim(-2000, 2000)
-    ax.set_ylim(-2000, 2000)
+    ax.set_xlim(-3000, 3000)
+    ax.set_ylim(-3000, 3000)
     for row in nodes:
         for x, y in row:
             ax.scatter(x, y, color="red", s=10)
     plt.show()
-    plt.pause(5)         # обновление окна
 
     for r in all_roads:
         x, y = r.xy

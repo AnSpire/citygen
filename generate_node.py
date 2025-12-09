@@ -16,7 +16,7 @@ def random_steps(grid, base, spread):
     return coords
 
 
-def generate_main_street(grid, base=300.0, spread=157) -> List[Tuple[float, float]]:
+def generate_main_street(grid, base=400.0, spread=107) -> List[Tuple[float, float]]:
     """
     Генерирует главный ряд узлов (горизонтальная магистраль).
     grid — количество точек (например, 4)
@@ -40,7 +40,7 @@ def generate_main_street(grid, base=300.0, spread=157) -> List[Tuple[float, floa
     return main_nodes
 
 
-def generate_blocks_from_main(main_row, rows, min_d=200, max_d=500) -> List[List[Tuple[float, float]]]:
+def generate_blocks_from_main_down(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
     """
     main_row — список точек магистрали [(x,y), ..., (x,y)]
     rows — сколько рядов кварталов сгенерировать ниже магистрали

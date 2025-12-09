@@ -2,7 +2,7 @@ import random
 import numpy as np
 from shapely import LineString
 from config import CityConfig
-
+from typing import List, Tuple
 
 config = CityConfig()
 
@@ -23,42 +23,47 @@ def slightly_noisy_curve(p1, p2, rate: int):
     return curve.simplify(0.5)
 
 
+Point2D = Tuple[float, float]
+
+
+def generate_road_from_points(points: List[Point2D]) -> List[LineString]:
+    """
+    Строит одну дорогу по списку точек (p0→p1→p2→...).
+    Работает только с одномерным массивом точек.
+    """
+    roads: List[LineString] = []
+
+    for i in range(len(points) - 1):
+        p1, p2 = points[i], points[i + 1]
+        roads.append(LineString([p1, p2]))
+
+    return roads
 
 
 
-def generate_roads(nodes):
-    roads = []
-    #SKIP_PROB = 0.0546  # удаляем только внутренние дороги
-    SKIP_PROB = 0
+def generate_roads_from_grid(nodes: List[List[Point2D]]) -> List[LineString]:
+    """
+    Строит дороги внутри района по двумерной сетке узлов.
+    Горизонтальные + вертикальные соединения.
+    """
+    roads: List[LineString] = []
+
     rows = len(nodes)
+    if rows == 0:
+        return roads
     cols = len(nodes[0])
 
     for i in range(rows):
         for j in range(cols):
 
-            # --- горизонтальные дороги ---
+            # горизонтальные дороги (справа)
             if j + 1 < cols:
-                p1, p2 = nodes[i][j], nodes[i][j+1]
+                p1, p2 = nodes[i][j], nodes[i][j + 1]
+                roads.append(LineString([p1, p2]))
 
-                is_border = (i == 0 or i == rows-1)      # верх/низ
-                if not is_border and random.random() < SKIP_PROB:
-                    pass  # пропускаем ВНУТРЕННЮЮ дорогу
-                else:
-                    roads.append(LineString([p1, p2]))
-
-
-            # --- вертикальные дороги ---
+            # вертикальные дороги (вниз)
             if i + 1 < rows:
-                p1, p2 = nodes[i][j], nodes[i+1][j]
-
-                is_border = (j == 0 or j == cols-1)      # левый/правый край
-                if not is_border and random.random() < SKIP_PROB:
-                    pass
-                else:
-                    if random.random() < config.CURVED_PROB:
-                        #roads.append(slightly_noisy_curve(p1, p2, rate=0))
-                        roads.append(LineString([p1, p2]))
-                    else:
-                        roads.append(LineString([p1, p2]))
+                p1, p2 = nodes[i][j], nodes[i + 1][j]
+                roads.append(LineString([p1, p2]))
 
     return roads
