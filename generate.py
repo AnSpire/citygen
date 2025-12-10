@@ -2,14 +2,13 @@ import numpy as np
 from shapely.geometry import LineString, Point, Polygon
 from shapely.affinity import translate
 import matplotlib.pyplot as plt
-import math
-import random
 from generate_node import  *
 from city_border import get_city_border
 from roads import generate_roads_from_grid, generate_road_from_points
 from branches import generate_branches
 from houses import generate_houses
 from config import CityConfig
+from park import *
 """
 РАЗНЫЙ РАЗМЕР КВАРТАЛОВ
 """
@@ -29,6 +28,11 @@ main_street_nodes: List[Tuple[float, float]] = generate_main_street_nodes(10)
 main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
 
 first_block = create_block(main_street_nodes_part=main_street_nodes[5:-1])
+park_polygon = generate_park_polygon()
+
+# print(first_block["roads"])
+# print(main_street_road)
+# input()
 
 blocks = [first_block]
 
@@ -39,8 +43,9 @@ if config.SHOW_LOCAL:
     plt.ion()
     fig, ax = plt.subplots(figsize=(10,10))
     ax.set_aspect("equal")
-    ax.set_xlim(-3000, 3000)
-    ax.set_ylim(-3000, 3000)
+    m = 3000
+    ax.set_xlim(-m, m)
+    ax.set_ylim(-m, m)
     for block in blocks:
         for row in block["nodes"]:
             for x, y in row:
@@ -59,7 +64,7 @@ if config.SHOW_LOCAL:
                 ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
         plt.show()
         plt.pause(0.1)
-
+    draw_polygon(ax=ax, poly=park_polygon)
     plt.draw()
     plt.pause(1000)         # обновление окна
 
