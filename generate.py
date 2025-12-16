@@ -9,7 +9,7 @@ from branches import generate_branches
 from houses import generate_houses
 from config import CityConfig
 from park import *
-from block import create_block_down
+from block import create_block_down, create_block_right_down
 """
 РАЗНЫЙ РАЗМЕР КВАРТАЛОВ
 """
@@ -30,12 +30,21 @@ bottom_park_side = reversed(park_polygon.exterior.coords[-5:-1])
 
 second_block = create_block_down(top_side=LineString(bottom_park_side))
 
+# second_block_left_side = [line[0] for line in second_block["nodes"]]
+# print(second_block_left_side)
+# park_right_side = 
+
+# print("left_side", LineString(line[-1] for line in second_block["nodes"]))
+# print("top_side", LineString(first_block["nodes"][-1]))
+# input()
+third_block = create_block_right_down(left_side=LineString(line[-1] for line in second_block["nodes"]), top_side=LineString(first_block["nodes"][-1]))
+
 # print(first_block["roads"])
 # print(main_street_road)
 # input()
 
-blocks = [first_block, second_block]
-
+# blocks = [first_block, second_block, third_block]
+blocks = [first_block, second_block, third_block]
 all_roads = [
     road
     for block in blocks
@@ -56,16 +65,12 @@ if config.SHOW_LOCAL:
         x, y = node
         ax.scatter(x, y, color="red", s=10)
 
+
     for block in blocks:
         for row in block["nodes"]:
             for x, y in row:
                 ax.scatter(x, y, color="red", s=10)
-        plt.show()
-
-        for r in all_roads:
-            x, y = r.xy
-            ax.plot(x, y, color="black", linewidth=1)
-
+        plt.show() 
         if config.ANIMATE_HOUSES:
             houses = generate_houses(block, config.CELL, all_roads, ax)
         else:
@@ -74,6 +79,10 @@ if config.SHOW_LOCAL:
                 ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
         plt.show()
         plt.pause(0.1)
+    for r in all_roads:
+        x, y = r.xy
+        ax.plot(x, y, color="black", linewidth=1)
+    
     draw_polygon(ax=ax, poly=park_polygon)
     plt.draw()
     plt.pause(1000)         # обновление окна

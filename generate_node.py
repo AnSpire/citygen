@@ -1,7 +1,7 @@
 import random
 from typing import List, Tuple
 from config import CityConfig
-
+from shapely import LineString
 
 config = CityConfig()
 
@@ -139,50 +139,17 @@ def generate_block_nodes_from_road_right_down(
     left_side — левая граница
     rows      — сколько рядов генерировать вниз
     """
-
     grid = len(top_side)
     nodes = [top_side]   # первый ряд — верхняя сторона
-
+    print("top_side: ", top_side)
+    print("left_side: ", left_side)
+    # input()
     for i in range(1, rows + 1):
-        prev_row = nodes[i - 1]
-        new_row = []
-
-        # базовая X-точка для текущего ряда — из левой стороны
-        base_lx, base_ly = left_side[i]
-
-        for j in range(grid):
-
-            # --- базовая точка ---
-            # X — от левой стороны (движение вправо)
-            px = base_lx
-            # Y — от предыдущего ряда (движение вниз)
-            _, py = prev_row[j]
-
-            # шаг вправо
-            dx = random.uniform(min_d, max_d)
-            x = px + dx
-
-            # шаг вниз
-            dy = random.uniform(min_d, max_d)
-            y = py - dy
-
-            # шум
-            x += random.uniform(-config.OFFSET, config.OFFSET)
-            y += random.uniform(-config.OFFSET, config.OFFSET)
-
-            # --- корректировка по Y (между соседями в ряду) ---
-            if j > 0:
-                prev_x, prev_y = new_row[j - 1]
-                dy_local = prev_y - y
-
-                if dy_local < min_d:
-                    y = prev_y - min_d
-                if dy_local > max_d:
-                    y = prev_y - max_d
-
-            new_row.append((x, y))
-
+        left_point = left_side[i]
+        new_row: List[Tuple[float, float]] = [left_point]
+        for i in range(1, len(top_side)):
+            x_prev, y_prev = new_row[-1]
+            new_point = (x_prev + random.uniform(min_d, max_d), y_prev + random.uniform(-config.OFFSET, config.OFFSET))
+            new_row.append(new_point)
         nodes.append(new_row)
-
     return nodes
-
