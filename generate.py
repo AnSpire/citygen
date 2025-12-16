@@ -1,89 +1,113 @@
-import numpy as np
-from shapely.geometry import LineString, Point, Polygon
-from shapely.affinity import translate
+from typing import List, Tuple
+
 import matplotlib.pyplot as plt
-from generate_node import  *
-from city_border import get_city_border
-from roads import generate_roads_from_grid, generate_road_from_points
+from shapely.geometry import LineString
+
+from block import BlockBuilder
 from branches import generate_branches
-from houses import generate_houses
 from config import CityConfig
-from park import *
-from block import create_block_down, create_block_right_down
-"""
-РАЗНЫЙ РАЗМЕР КВАРТАЛОВ
-"""
-config = CityConfig()
+from houses import HouseGenerator
+from models import CityLayout
+from park import ParkGenerator, draw_polygon
+from roads import RoadBuilder
 
 
-main_street_nodes: List[Tuple[float, float]] = generate_main_street_nodes(10)
-main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
+class CityGenerator:
+    """
+    Собирает все части генерации в единый пайплайн: магистраль, кварталы, парк.
+    """
 
-first_block = create_block_down(top_side=LineString(main_street_nodes[5:-1]))
-nodes = list(first_block["nodes"])
-nodes.append(main_street_nodes)
-park_right_side: List[Tuple[float, float]] = [line[0] for line in first_block["nodes"]]
+    def __init__(self, config: CityConfig):
+        self.config = config
+        self.block_builder = BlockBuilder(config)
+        self.road_builder = RoadBuilder()
+        self.house_generator = HouseGenerator(config)
+        self.park_generator = ParkGenerator()
 
-park_polygon = generate_park_polygon_from(LineString(park_right_side), LineString(main_street_nodes[3:5]))
+    def generate(self) -> CityLayout:
+        main_street_nodes: List[Tuple[float, float]] = self.block_builder.node_generator.generate_main_street_nodes(10)
+        main_street_roads: List[LineString] = self.road_builder.generate_road_from_points(main_street_nodes)
 
-bottom_park_side = reversed(park_polygon.exterior.coords[-5:-1])
+        first_block = self.block_builder.create_block_down(top_side=LineString(main_street_nodes[5:-1]))
+        park_right_side: List[Tuple[float, float]] = [line[0] for line in first_block.nodes]
 
-second_block = create_block_down(top_side=LineString(bottom_park_side))
+        park_polygon = self.park_generator.generate_polygon_from_sides(LineString(park_right_side), LineString(main_street_nodes[3:5]))
+        bottom_park_side = list(reversed(park_polygon.exterior.coords[-5:-1]))
 
-# second_block_left_side = [line[0] for line in second_block["nodes"]]
-# print(second_block_left_side)
-# park_right_side = 
+        second_block = self.block_builder.create_block_down(top_side=LineString(bottom_park_side))
+        third_block = self.block_builder.create_block_right_down(left_side=LineString(line[-1] for line in second_block.nodes), top_side=LineString(first_block.nodes[-1]))
 
-# print("left_side", LineString(line[-1] for line in second_block["nodes"]))
-# print("top_side", LineString(first_block["nodes"][-1]))
-# input()
-third_block = create_block_right_down(left_side=LineString(line[-1] for line in second_block["nodes"]), top_side=LineString(first_block["nodes"][-1]))
+        blocks = [first_block, second_block, third_block]
+        all_roads = [road for block in blocks for road in block.roads]
+        all_roads += main_street_roads
 
-# print(first_block["roads"])
-# print(main_street_road)
-# input()
-
-# blocks = [first_block, second_block, third_block]
-blocks = [first_block, second_block, third_block]
-all_roads = [
-    road
-    for block in blocks
-    for road in block["roads"]
-]
-
-all_roads += main_street_road
-
-
-if config.SHOW_LOCAL:
-    plt.ion()
-    fig, ax = plt.subplots(figsize=(10,10))
-    ax.set_aspect("equal")
-    m = 3000
-    ax.set_xlim(-m, m)
-    ax.set_ylim(-m, m)
-    for node in main_street_nodes:
-        x, y = node
-        ax.scatter(x, y, color="red", s=10)
+        return CityLayout(
+            main_street_nodes=main_street_nodes,
+            main_street_roads=main_street_roads,
+            blocks=blocks,
+            park_polygon=park_polygon,
+            all_roads=all_roads,
+        )
 
 
-    for block in blocks:
-        for row in block["nodes"]:
-            for x, y in row:
-                ax.scatter(x, y, color="red", s=10)
-        plt.show() 
-        if config.ANIMATE_HOUSES:
-            houses = generate_houses(block, config.CELL, all_roads, ax)
-        else:
-            for house in block["houses"]:
-                x, y = house.exterior.xy
-                ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
-        plt.show()
-        plt.pause(0.1)
-    for r in all_roads:
-        x, y = r.xy
-        ax.plot(x, y, color="black", linewidth=1)
-    
-    draw_polygon(ax=ax, poly=park_polygon)
-    plt.draw()
-    plt.pause(1000)         # обновление окна
+class CityPlotter:
+    """
+    Отвечает только за отрисовку результата.
+    """
 
+    def __init__(self, config: CityConfig, house_generator: HouseGenerator):
+        self.config = config
+        self.house_generator = house_generator
+
+    def plot(self, layout: CityLayout):
+        if not self.config.SHOW_LOCAL:
+            return
+
+        plt.ion()
+        fig, ax = plt.subplots(figsize=(10, 10))
+        ax.set_aspect("equal")
+        m = 3000
+        ax.set_xlim(-m, m)
+        ax.set_ylim(-m, m)
+
+        for node in layout.main_street_nodes:
+            x, y = node
+            ax.scatter(x, y, color="red", s=10)
+
+        for block in layout.blocks:
+            for row in block.nodes:
+                for x, y in row:
+                    ax.scatter(x, y, color="red", s=10)
+
+            if self.config.ANIMATE_HOUSES:
+                self.house_generator.generate_houses(block.nodes, self.config.CELL, layout.all_roads, ax)
+            else:
+                for house in block.houses:
+                    x, y = house.exterior.xy
+                    ax.fill(x, y, color="brown", alpha=1, edgecolor="black", linewidth=1)
+            plt.show()
+            plt.pause(0.1)
+
+        for road in layout.all_roads:
+            x, y = road.xy
+            ax.plot(x, y, color="black", linewidth=1)
+
+        draw_polygon(ax=ax, poly=layout.park_polygon)
+        plt.draw()
+        plt.pause(1000)
+
+
+def main():
+    config = CityConfig()
+    city_generator = CityGenerator(config)
+    layout = city_generator.generate()
+
+    branches = generate_branches(layout.all_roads, layout.park_polygon)
+    layout.all_roads.extend(branches)
+
+    plotter = CityPlotter(config, HouseGenerator(config))
+    plotter.plot(layout)
+
+
+if __name__ == "__main__":
+    main()

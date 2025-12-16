@@ -28,39 +28,26 @@ def random_point_in_polygon(poly: Polygon) -> Point:
 import numpy as np
 from shapely.geometry import Polygon
 
+
 def generate_park_polygon() -> Polygon:
     m = 50
 
-    # === ПЕРВЫЕ ДВЕ СТОРОНЫ — КАК И РАНЬШЕ ===
-    P0 = np.array([0.0 * m, 0.0 * m])   # (0, 0)
-    P1 = np.array([8.0 * m, 1.0 * m])   # (8, 1)
-    P2 = np.array([10.0 * m, 4.0 * m])  # (10, 4)
+    P0 = np.array([0.0 * m, 0.0 * m])
+    P1 = np.array([8.0 * m, 1.0 * m])
+    P2 = np.array([10.0 * m, 4.0 * m])
 
-    # Вектора первых двух сторон
-    v1 = P1 - P0            # сторона P0 → P1
-    v2 = P2 - P1            # сторона P1 → P2
-
-    # Остальные вершины задаём относительно v1 и v2 так,
-    # чтобы форма совпала с исходной:
-    #
-    # P3 = (9, 8)
-    # P4 = (5,10)
-    # P5 = (1, 9)
-    # P6 = (-1,5)
-    # P7 = (-2,2)
-    #
-    # Pi = P0 + a_i * v1 + b_i * v2
+    v1 = P1 - P0
+    v2 = P2 - P1
 
     rel_coeffs = [
-        (1/2, 5/2),          # даёт (9, 8)
-        (-5/22, 75/22),      # даёт (5, 10)
-        (-15/22, 71/22),     # даёт (1, 9)
-        (-13/22, 41/22),     # даёт (-1, 5)
-        (-5/11, 9/11),       # даёт (-2, 2)
+        (1 / 2, 5 / 2),
+        (-5 / 22, 75 / 22),
+        (-15 / 22, 71 / 22),
+        (-13 / 22, 41 / 22),
+        (-5 / 11, 9 / 11),
     ]
 
     points = [tuple(P0), tuple(P1), tuple(P2)]
-
     for a, b in rel_coeffs:
         pt = P0 + a * v1 + b * v2
         points.append(tuple(pt))
@@ -71,14 +58,11 @@ def generate_park_polygon() -> Polygon:
 def generate_park_polygon_from(right_side: LineString, top_side: LineString):
     m = 50
     points: List[tuple] = [point for point in top_side.coords] + [point for point in right_side.coords]
-    # points.append((right_side.coords[-1][0] - 8.0 * m, right_side.coords[-1][1] - 4.3 * m))
     points.append((points[-1][0] - 8.0 * m, points[-1][1] - 1.3 * m))
     points.append((points[-1][0] - 5.6 * m, points[-1][1] + 1.2 * m))
     points.append((points[-1][0] - 1.3 * m, points[-1][1] - 1.2 * m))
-
     return Polygon(points)
-    
-    
+
 
 def generate_trees(park: Polygon, n_trees: int = 80) -> List[Point]:
     return [random_point_in_polygon(park) for _ in range(n_trees)]
@@ -92,13 +76,14 @@ def generate_lawns(park: Polygon, n_lawns: int = 3) -> List[Polygon]:
         h = random.uniform(0.6, 1.2)
         cx, cy = center.x, center.y
 
-        rect = Polygon([
-            (cx - w / 2, cy - h / 2),
-            (cx + w / 2, cy - h / 2),
-            (cx + w / 2, cy + h / 2), 
-            (cx - w / 2, cy + h / 2),
-
-        ])
+        rect = Polygon(
+            [
+                (cx - w / 2, cy - h / 2),
+                (cx + w / 2, cy - h / 2),
+                (cx + w / 2, cy + h / 2),
+                (cx - w / 2, cy + h / 2),
+            ]
+        )
 
         if park.contains(rect):
             lawns.append(rect)
@@ -218,3 +203,20 @@ def plot_park() -> None:
 if __name__ == "__main__":
     random.seed(42)
     plot_park()
+
+
+class ParkGenerator:
+    def generate_polygon(self) -> Polygon:
+        return generate_park_polygon()
+
+    def generate_polygon_from_sides(self, right_side: LineString, top_side: LineString) -> Polygon:
+        return generate_park_polygon_from(right_side, top_side)
+
+    def generate_trees(self, park: Polygon, n_trees: int = 80) -> List[Point]:
+        return generate_trees(park, n_trees)
+
+    def generate_lawns(self, park: Polygon, n_lawns: int = 3) -> List[Polygon]:
+        return generate_lawns(park, n_lawns)
+
+    def generate_paths(self, park: Polygon, n_paths: int = 4) -> List[LineString]:
+        return generate_paths(park, n_paths)
