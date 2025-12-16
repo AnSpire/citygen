@@ -9,7 +9,7 @@ from branches import generate_branches
 from houses import generate_houses
 from config import CityConfig
 from park import *
-from block import create_block
+from block import create_block_down
 """
 РАЗНЫЙ РАЗМЕР КВАРТАЛОВ
 """
@@ -19,10 +19,13 @@ config = CityConfig()
 main_street_nodes: List[Tuple[float, float]] = generate_main_street_nodes(10)
 main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
 
-first_block = create_block(main_street_nodes_part=main_street_nodes[5:-1])
+first_block = create_block_down(top_side=LineString(main_street_nodes[5:-1]))
 nodes = list(first_block["nodes"])
 nodes.append(main_street_nodes)
-park_polygon = generate_park_polygon()
+# park_polygon = generate_park_polygon()
+park_right_side: List[Tuple[float, float]] = [line[0] for line in first_block["nodes"]]
+
+park_polygon = generate_park_polygon_from(LineString(park_right_side), LineString(main_street_nodes[3:5]))
 
 # print(first_block["roads"])
 # print(main_street_road)

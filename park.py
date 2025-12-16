@@ -68,6 +68,16 @@ def generate_park_polygon() -> Polygon:
     return Polygon(points)
 
 
+def generate_park_polygon_from(right_side: LineString, top_side: LineString):
+    m = 50
+    points: List[tuple] = [point for point in top_side.coords] + [point for point in right_side.coords]
+    # points.append((right_side.coords[-1][0] - 8.0 * m, right_side.coords[-1][1] - 4.3 * m))
+    points.append((points[-1][0] - 8.0 * m, points[-1][1] - 4.3 * m))
+    points.append((points[-1][0] - 5.6 * m, points[-1][1] + 3.4 * m))
+
+    return Polygon(points)
+    
+    
 
 def generate_trees(park: Polygon, n_trees: int = 80) -> List[Point]:
     return [random_point_in_polygon(park) for _ in range(n_trees)]
@@ -84,8 +94,9 @@ def generate_lawns(park: Polygon, n_lawns: int = 3) -> List[Polygon]:
         rect = Polygon([
             (cx - w / 2, cy - h / 2),
             (cx + w / 2, cy - h / 2),
-            (cx + w / 2, cy + h / 2),
+            (cx + w / 2, cy + h / 2), 
             (cx - w / 2, cy + h / 2),
+
         ])
 
         if park.contains(rect):

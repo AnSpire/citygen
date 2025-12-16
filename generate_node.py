@@ -40,7 +40,7 @@ def generate_main_street_nodes(grid, base=300.0, spread=107) -> List[Tuple[float
     return main_nodes
 
 
-def generate_block_nodes_from_main_down(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
+def generate_block_nodes_from_road_down(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
     """
     main_row — список точек магистрали [(x,y), ..., (x,y)]
     rows — сколько рядов кварталов сгенерировать ниже магистрали
@@ -84,7 +84,7 @@ def generate_block_nodes_from_main_down(main_row, rows, min_d=200, max_d=300) ->
 
 
 
-def generate_block_nodes_from_main_up(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
+def generate_block_nodes_from_road_up(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
     """
     main_row — список точек магистрали [(x,y), ..., (x,y)]
     rows — сколько рядов кварталов сгенерировать ниже магистрали
