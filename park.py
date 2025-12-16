@@ -72,8 +72,9 @@ def generate_park_polygon_from(right_side: LineString, top_side: LineString):
     m = 50
     points: List[tuple] = [point for point in top_side.coords] + [point for point in right_side.coords]
     # points.append((right_side.coords[-1][0] - 8.0 * m, right_side.coords[-1][1] - 4.3 * m))
-    points.append((points[-1][0] - 8.0 * m, points[-1][1] - 4.3 * m))
-    points.append((points[-1][0] - 5.6 * m, points[-1][1] + 3.4 * m))
+    points.append((points[-1][0] - 8.0 * m, points[-1][1] - 1.3 * m))
+    points.append((points[-1][0] - 5.6 * m, points[-1][1] + 1.2 * m))
+    points.append((points[-1][0] - 1.3 * m, points[-1][1] - 1.2 * m))
 
     return Polygon(points)
     

@@ -22,18 +22,27 @@ main_street_road: List[LineString] = generate_road_from_points(main_street_nodes
 first_block = create_block_down(top_side=LineString(main_street_nodes[5:-1]))
 nodes = list(first_block["nodes"])
 nodes.append(main_street_nodes)
-# park_polygon = generate_park_polygon()
 park_right_side: List[Tuple[float, float]] = [line[0] for line in first_block["nodes"]]
 
 park_polygon = generate_park_polygon_from(LineString(park_right_side), LineString(main_street_nodes[3:5]))
+
+bottom_park_side = reversed(park_polygon.exterior.coords[-5:-1])
+
+second_block = create_block_down(top_side=LineString(bottom_park_side))
 
 # print(first_block["roads"])
 # print(main_street_road)
 # input()
 
-blocks = [first_block]
+blocks = [first_block, second_block]
 
-all_roads = first_block["roads"] + main_street_road
+all_roads = [
+    road
+    for block in blocks
+    for road in block["roads"]
+]
+
+all_roads += main_street_road
 
 
 if config.SHOW_LOCAL:

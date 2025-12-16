@@ -40,14 +40,14 @@ def generate_main_street_nodes(grid, base=300.0, spread=107) -> List[Tuple[float
     return main_nodes
 
 
-def generate_block_nodes_from_road_down(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
+def generate_block_nodes_from_road_down(top_side, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
     """
     main_row — список точек магистрали [(x,y), ..., (x,y)]
     rows — сколько рядов кварталов сгенерировать ниже магистрали
     """
 
-    grid = len(main_row)
-    nodes = [main_row]   # первый ряд уже задан
+    grid = len(top_side)
+    nodes = [top_side]   # первый ряд уже задан
 
     for i in range(1, rows + 1):
         prev_row = nodes[i - 1]
@@ -84,14 +84,14 @@ def generate_block_nodes_from_road_down(main_row, rows, min_d=200, max_d=300) ->
 
 
 
-def generate_block_nodes_from_road_up(main_row, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
+def generate_block_nodes_from_road_up(bottom_side, rows, min_d=200, max_d=300) -> List[List[Tuple[float, float]]]:
     """
     main_row — список точек магистрали [(x,y), ..., (x,y)]
     rows — сколько рядов кварталов сгенерировать ниже магистрали
     """
 
-    grid = len(main_row)
-    nodes = [main_row]   # первый ряд уже задан
+    grid = len(bottom_side)
+    nodes = [bottom_side]   # первый ряд уже задан
 
     for i in range(1, rows + 1):
         prev_row = nodes[i - 1]
@@ -125,3 +125,64 @@ def generate_block_nodes_from_road_up(main_row, rows, min_d=200, max_d=300) -> L
         nodes.append(new_row)
 
     return nodes
+
+
+def generate_block_nodes_from_road_right_down(
+    top_side,
+    left_side,
+    rows,
+    min_d=200,
+    max_d=300
+) -> List[List[Tuple[float, float]]]:
+    """
+    top_side  — верхняя граница (магистраль)
+    left_side — левая граница
+    rows      — сколько рядов генерировать вниз
+    """
+
+    grid = len(top_side)
+    nodes = [top_side]   # первый ряд — верхняя сторона
+
+    for i in range(1, rows + 1):
+        prev_row = nodes[i - 1]
+        new_row = []
+
+        # базовая X-точка для текущего ряда — из левой стороны
+        base_lx, base_ly = left_side[i]
+
+        for j in range(grid):
+
+            # --- базовая точка ---
+            # X — от левой стороны (движение вправо)
+            px = base_lx
+            # Y — от предыдущего ряда (движение вниз)
+            _, py = prev_row[j]
+
+            # шаг вправо
+            dx = random.uniform(min_d, max_d)
+            x = px + dx
+
+            # шаг вниз
+            dy = random.uniform(min_d, max_d)
+            y = py - dy
+
+            # шум
+            x += random.uniform(-config.OFFSET, config.OFFSET)
+            y += random.uniform(-config.OFFSET, config.OFFSET)
+
+            # --- корректировка по Y (между соседями в ряду) ---
+            if j > 0:
+                prev_x, prev_y = new_row[j - 1]
+                dy_local = prev_y - y
+
+                if dy_local < min_d:
+                    y = prev_y - min_d
+                if dy_local > max_d:
+                    y = prev_y - max_d
+
+            new_row.append((x, y))
+
+        nodes.append(new_row)
+
+    return nodes
+

@@ -10,7 +10,7 @@ config = CityConfig()
 
 
 def create_block_down(top_side: LineString) -> dict:
-    block = generate_block_nodes_from_road_down(main_row=list(top_side.coords), rows=2)
+    block = generate_block_nodes_from_road_down(top_side=list(top_side.coords), rows=2)
     nodes = block.copy() 
     roads: List[LineString] = generate_roads_from_grid(block)
     # CITY_BORDER = get_city_border(block)
@@ -21,7 +21,7 @@ def create_block_down(top_side: LineString) -> dict:
 
 
 def create_block_up(bottom_side: LineString) -> dict:
-    block = generate_block_nodes_from_road_down(main_row=list(bottom_side.coords), rows=2)
+    block = generate_block_nodes_from_road_down(top_side=list(bottom_side.coords), rows=2)
     nodes = block.copy() 
     roads: List[LineString] = generate_roads_from_grid(block)
     # CITY_BORDER = get_city_border(block)
@@ -32,7 +32,7 @@ def create_block_up(bottom_side: LineString) -> dict:
 
 
 def create_block_left_down(top_side: LineString, righ_side: LineString) -> dict:
-    block = generate_block_nodes_from_road_down(main_row=list(top_side.coords), rows=2)
+    block = generate_block_nodes_from_road_down(top_side=list(top_side.coords), rows=2)
     nodes = block.copy() 
     roads: List[LineString] = generate_roads_from_grid(block)
     # CITY_BORDER = get_city_border(block)
