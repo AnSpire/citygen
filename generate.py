@@ -9,25 +9,19 @@ from branches import generate_branches
 from houses import generate_houses
 from config import CityConfig
 from park import *
+from block import create_block
 """
 РАЗНЫЙ РАЗМЕР КВАРТАЛОВ
 """
 config = CityConfig()
 
-def create_block(main_street_nodes_part) -> dict:
-    block = generate_block_nodes_from_main_down(main_row=main_street_nodes_part, rows=2)
-    nodes = block.copy() 
-    nodes.append(main_street_nodes)
-    roads: List[LineString] = generate_roads_from_grid(block)
-    # CITY_BORDER = get_city_border(block)
-    if not config.ANIMATE_HOUSES:
-        houses = generate_houses(block, config.CELL, roads)
-    return {"nodes": nodes, "roads": roads, "houses": houses}
 
 main_street_nodes: List[Tuple[float, float]] = generate_main_street_nodes(10)
 main_street_road: List[LineString] = generate_road_from_points(main_street_nodes)
 
 first_block = create_block(main_street_nodes_part=main_street_nodes[5:-1])
+nodes = list(first_block["nodes"])
+nodes.append(main_street_nodes)
 park_polygon = generate_park_polygon()
 
 # print(first_block["roads"])
@@ -46,6 +40,10 @@ if config.SHOW_LOCAL:
     m = 3000
     ax.set_xlim(-m, m)
     ax.set_ylim(-m, m)
+    for node in main_street_nodes:
+        x, y = node
+        ax.scatter(x, y, color="red", s=10)
+
     for block in blocks:
         for row in block["nodes"]:
             for x, y in row:
