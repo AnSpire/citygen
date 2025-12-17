@@ -1,7 +1,7 @@
 import random
 from typing import List, Tuple
 
-from config import CityConfig
+from .config import CityConfig
 
 
 class NodeGenerator:

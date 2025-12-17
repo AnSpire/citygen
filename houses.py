@@ -5,8 +5,8 @@ from typing import List
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString, Point, Polygon
 
-from config import CityConfig
-from models import Point2D
+from .config import CityConfig
+from .models import Point2D
 
 
 class HouseGenerator:

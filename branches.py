@@ -3,8 +3,8 @@ import random
 
 from shapely import LineString
 
-from config import CityConfig
-from roads import RoadBuilder
+from .config import CityConfig
+from .roads import RoadBuilder
 
 
 config = CityConfig()

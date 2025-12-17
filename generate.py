@@ -3,13 +3,13 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString
 
-from block import BlockBuilder
-from branches import generate_branches
-from config import CityConfig
-from houses import HouseGenerator
-from models import CityLayout
-from park import ParkGenerator, draw_polygon
-from roads import RoadBuilder
+from .block import BlockBuilder
+from .branches import generate_branches
+from .config import CityConfig
+from .houses import HouseGenerator
+from .models import CityLayout
+from .park import ParkGenerator, draw_polygon
+from  .roads import RoadBuilder
 
 
 class CityGenerator:

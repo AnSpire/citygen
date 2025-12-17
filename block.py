@@ -2,11 +2,11 @@ from typing import List
 
 from shapely import LineString
 
-from config import CityConfig
-from houses import HouseGenerator
-from models import Block
-from generate_node import NodeGenerator
-from roads import RoadBuilder
+from .config import CityConfig
+from .houses import HouseGenerator
+from .models import Block
+from .generate_node import NodeGenerator
+from .roads import RoadBuilder
 
 
 class BlockBuilder:
