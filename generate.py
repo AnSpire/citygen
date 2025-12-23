@@ -102,8 +102,6 @@ def main():
     city_generator = CityGenerator(config)
     layout = city_generator.generate()
 
-    branches = generate_branches(layout.all_roads, layout.park_polygon)
-    layout.all_roads.extend(branches)
 
     plotter = CityPlotter(config, HouseGenerator(config))
     plotter.plot(layout)
