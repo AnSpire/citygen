@@ -37,12 +37,21 @@ class CityGenerator:
         second_block = self.block_builder.create_block_down(top_side=LineString(bottom_park_side))
         third_block = self.block_builder.create_block_right_down(left_side=LineString(line[-1] for line in second_block.nodes), top_side=LineString(first_block.nodes[-1]))
 
-        blocks = [first_block, second_block, third_block]
+        fourth_block = self.block_builder.create_block_up(bottom_side=LineString(main_street_nodes[3:6]))
+
+        fifth_block = self.block_builder.create_block_up_right(bottom_side=LineString(main_street_nodes[5:9]), left_side=LineString(line[-1] for line in fourth_block.nodes))
+
+        new_main_street_nodes = self.block_builder.node_generator.generate_main_street_nodes_from(10, (0, -1550))
+        new_main_street_roads = self.road_builder.generate_road_from_points(new_main_street_nodes)
+
+        fourth_block = self.block_builder.create_block_between_roads(LineString(second_block.nodes[-1]), LineString(new_main_street_nodes[3:7]))
+        blocks = [first_block, second_block, third_block, fourth_block, fifth_block]
         all_roads = [road for block in blocks for road in block.roads]
         all_roads += main_street_roads
+        all_roads += new_main_street_roads
 
         return CityLayout(
-            main_street_nodes=main_street_nodes,
+            main_street_nodes=main_street_nodes + new_main_street_nodes,
             main_street_roads=main_street_roads,
             blocks=blocks,
             park_polygon=park_polygon,
@@ -73,6 +82,7 @@ class CityPlotter:
         for node in layout.main_street_nodes:
             x, y = node
             ax.scatter(x, y, color="red", s=10)
+
 
         for block in layout.blocks:
             for row in block.nodes:

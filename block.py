@@ -26,9 +26,31 @@ class BlockBuilder:
         return self._finalize_block(block_nodes)
 
     def create_block_up(self, bottom_side: LineString) -> Block:
-        block_nodes = self.node_generator.generate_block_nodes_from_road_down(top_side=list(bottom_side.coords), rows=2)
+        block_nodes = self.node_generator.generate_block_nodes_from_road_up(bottom_side=list(bottom_side.coords), rows=2)
         return self._finalize_block(block_nodes)
 
     def create_block_right_down(self, top_side: LineString, left_side: LineString) -> Block:
         block_nodes = self.node_generator.generate_block_nodes_from_road_right_down(top_side=list(top_side.coords), left_side=list(left_side.coords), rows=2)
         return self._finalize_block(block_nodes)
+
+    def create_block_up_right(self, bottom_side: LineString, left_side: LineString) -> Block:
+        block_nodes = self.node_generator.generate_block_nodes_from_road_up_right(
+            bottom_side=list(bottom_side.coords),
+            left_side=list(left_side.coords),
+            rows=2,
+        )
+        return self._finalize_block(block_nodes)
+    
+    def create_block_between_roads(
+        self,
+        top_side: LineString,
+        bottom_side: LineString,
+    ) -> Block:
+        block_nodes = self.node_generator.generate_block_nodes_between_top_bottom(
+            top_side=list(top_side.coords),
+            bottom_side=list(bottom_side.coords),
+            rows=2,
+        )
+        return self._finalize_block(block_nodes)
+
+

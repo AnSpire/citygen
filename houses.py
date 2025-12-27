@@ -82,7 +82,7 @@ class HouseGenerator:
                             plt.pause(0.001)
                         total += house_len + step
 
-                num_sq = random.randint(5, 9)
+                num_sq = random.randint(5,9)
                 min_x = min(p_tl[0], p_tr[0], p_bl[0], p_br[0])
                 max_x = max(p_tl[0], p_tr[0], p_bl[0], p_br[0])
                 min_y = min(p_tl[1], p_tr[1], p_bl[1], p_br[1])

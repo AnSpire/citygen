@@ -25,6 +25,33 @@ class NodeGenerator:
             main_nodes.append((nx, ny))
         return main_nodes
 
+
+    def generate_main_street_nodes_from(
+        self,
+        grid: int,
+        start: Tuple[float, float],
+        base: float = 300.0,
+        spread: float = 107.0
+    ) -> List[Tuple[float, float]]:
+        """
+        Генерирует главный ряд узлов (горизонтальная магистраль),
+        начиная с произвольной точки start = (x0, y0)
+        """
+        x0, y0 = start
+
+        xs = [0.0]
+        for _ in range(grid - 1):
+            step = base + random.uniform(-spread, spread)
+            xs.append(xs[-1] + step)
+
+        main_nodes = []
+        for x in xs:
+            nx = x0 + x + random.uniform(-self.config.OFFSET, self.config.OFFSET)
+            ny = y0 + random.uniform(-self.config.OFFSET, self.config.OFFSET)
+            main_nodes.append((nx, ny))
+
+        return main_nodes
+
     def generate_block_nodes_from_road_down(self, top_side: List[Tuple[float, float]], rows: int, min_d: float = 200, max_d: float = 300) -> List[List[Tuple[float, float]]]:
         """
         main_row — список точек магистрали [(x,y), ..., (x,y)]
@@ -111,3 +138,73 @@ class NodeGenerator:
                 new_row.append(new_point)
             nodes.append(new_row)
         return nodes
+
+
+    def generate_block_nodes_from_road_up_right(
+        self,
+        bottom_side: List[Tuple[float, float]],
+        left_side: List[Tuple[float, float]],
+        rows: int,
+        min_d: float = 200,
+        max_d: float = 300,
+    ) -> List[List[Tuple[float, float]]]:
+        """
+        bottom_side — нижняя граница
+        left_side   — левая граница
+        rows        — сколько рядов генерировать вверх
+        """
+        nodes = [bottom_side]
+
+        for i in range(1, rows + 1):
+            left_point = left_side[i]
+            new_row: List[Tuple[float, float]] = [left_point]
+
+            for _ in range(1, len(bottom_side)):
+                x_prev, y_prev = new_row[-1]
+                new_point = (
+                    x_prev + random.uniform(min_d, max_d),      # вправо
+                    y_prev + random.uniform(-self.config.OFFSET, self.config.OFFSET),
+                )
+                new_row.append(new_point)
+
+            nodes.append(new_row)
+
+        return nodes
+
+
+    def generate_block_nodes_between_top_bottom(
+        self,
+        top_side: List[Tuple[float, float]],
+        bottom_side: List[Tuple[float, float]],
+        rows: int,
+    ) -> List[List[Tuple[float, float]]]:
+        """
+        top_side    — верхняя граница
+        bottom_side — нижняя граница
+        rows        — сколько рядов между ними
+        """
+
+        assert len(top_side) == len(bottom_side), \
+            "top_side и bottom_side должны иметь одинаковое число точек"
+
+        nodes: List[List[Tuple[float, float]]] = []
+        total_rows = rows # чтобы bottom_side был последним
+
+        for r in range(0, total_rows + 1):
+            t = r / total_rows  # 0 → top, 1 → bottom
+            row: List[Tuple[float, float]] = []
+
+            for (x1, y1), (x2, y2) in zip(top_side, bottom_side):
+                x = x1 + (x2 - x1) * t
+                y = y1 + (y2 - y1) * t
+
+                # лёгкая неровность для внутренних рядов
+                if 0 < r < total_rows:
+                    y += random.uniform(-self.config.OFFSET, self.config.OFFSET)
+
+                row.append((x, y))
+
+            nodes.append(row)
+
+        return nodes
+

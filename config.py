@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class CityConfig:
     GRID: int = 4
     CELL: float = 300
-    OFFSET: float = 25
+    OFFSET: float = 15
     MIN_D: float = 200
     MAX_D: float = 500
     CURVED_PROB: float = 0.5
@@ -13,7 +13,7 @@ class CityConfig:
     BRANCH_MIN: float = 0.2
     BRANCH_MAX: float = 0.45
 
-    HOUSE_INSIDE_MIN: tuple = (5,9)
+    HOUSE_INSIDE_MIN: tuple = (3,6)
 
     SHOW_LOCAL: bool = True
     ANIMATE_HOUSES: bool = False
